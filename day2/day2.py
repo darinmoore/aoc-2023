@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  Advent of Code 2023 - Day 1
+#  Advent of Code 2023 - Day 2
 #
 from typing import Sequence, Union, Optional, Any, Dict, List, Tuple
 from pathlib import Path
@@ -14,44 +14,27 @@ INPUTFILE = "input.txt"
 SAMPLE_CASES = [
     (
         """
-        1abc2
-        pqr3stu8vwx
-        a1b2c3d4e5f
-        treb7uchet
+        Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+        Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+        Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+        Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+        Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
         """,
-        142
+        8
     ),
 ]
-
 SAMPLE_CASES2 = [
     (
-    """
-    two1nine
-    eightwothree
-    abcone2threexyz
-    xtwone3four
-    4nineeightseven2
-    zoneight234
-    7pqrstsixteen
-    """,
-    281
-    )
-
+        """
+        Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+        Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+        Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+        Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+        Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+        """,
+        2286
+    ),
 ]
-
-WORD_TO_DIGIT = {
-    "one" : "1",
-    "two" : "2",
-    "three" : "3",
-    "four" : "4",
-    "five" : "5",
-    "six" : "6",
-    "seven" : "7",
-    "eight" : "8",
-    "nine" : "9"
-}
-
-
 
 Lines = Sequence[str]
 Sections = Sequence[Lines]
@@ -86,36 +69,59 @@ def parse_sections(lines: Lines) -> Sections:
 
 
 # Solution
-def parse_digits(line):
-    digits = ""
-    for i in range(len(line)):
-        char = line[i]
-        if char.isdigit():
-            digits += char
-        else:
-            for word in WORD_TO_DIGIT.keys():
-                if line[i:].startswith(word):
-                    digits += WORD_TO_DIGIT[word]
-
-    return digits
+def parse_games(game):
+    max_colors = {}
+    for hand in game.split(";"):
+        for color in hand.split(", "):
+            number = int(color.strip().split(" ")[0])
+            pebble = None
+            if "blue" in color:
+                pebble = "blue"
+            if "red" in color:
+                pebble = "red"
+            if "green" in color:
+                pebble = "green"
+            
+            max_pebbles = max_colors.get(pebble)
+            if max_pebbles:
+                if max_pebbles < number:
+                    max_colors[pebble] = number
+            else:
+                max_colors[pebble] = number
+    return max_colors
 
 def solve2(lines: Lines) -> int:
     """Solve the problem."""
-    nums = []
+    game_to_colors = {}
+    power = 0
     for line in lines:
-        digits = parse_digits(line)
-        line_num = int(digits[0] + digits[-1])
-        nums.append(line_num)
-    return sum(nums)
+        split_lines = line.split(":")
+        game_id = int(split_lines[0].split(" ")[-1])
+        colors = parse_games(split_lines[1])
+        game_to_colors[game_id] = colors
+        power += colors["green"] * colors["red"] * colors["blue"]
+    return power
 
 def solve(lines: Lines) -> int:
     """Solve the problem."""
-    nums = []   
+    game_to_colors = {}
     for line in lines:
-        digits = [char for char in line if char.isdigit()]
-        line_num = int(digits[0] + digits[-1])
-        nums.append(line_num)
-    return sum(nums)
+        split_lines = line.split(":")
+        game_id = int(split_lines[0].split(" ")[-1])
+        colors = parse_games(split_lines[1])
+        game_to_colors[game_id] = colors
+
+    sum_ids = 0
+    for game in game_to_colors.keys():
+        if game_to_colors[game]["red"] > 12:
+            continue
+        if game_to_colors[game]["green"] > 13:
+            continue
+        if game_to_colors[game]["blue"] > 14:
+            continue
+        sum_ids += game
+    return sum_ids
+
 
 # PART 1
 
@@ -133,7 +139,7 @@ def part1(lines: Lines) -> None:
     print("PART 1:")
     result = solve(lines)
     print(f"result is {result}")
-    assert result == 54968
+    assert result == 2237
     print("= " * 32)
 
 
@@ -153,7 +159,7 @@ def part2(lines: Lines) -> None:
     print("PART 2:")
     result = solve2(lines)
     print(f"result is {result}")
-    assert result == 54094
+    assert result == 66681
     print("= " * 32)
 
 
