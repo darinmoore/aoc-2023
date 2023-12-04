@@ -1,2 +1,5 @@
 __pycache__/
 session_key.txt
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
