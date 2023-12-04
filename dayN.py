@@ -81,7 +81,6 @@ def part1(lines: Lines) -> None:
     print("PART 1:")
     result = solve(lines)
     print(f"result is {result}")
-    assert result == -1
     print("= " * 32)
 
 
@@ -101,7 +100,6 @@ def part2(lines: Lines) -> None:
     print("PART 2:")
     result = solve2(lines)
     print(f"result is {result}")
-    assert result == -1
     print("= " * 32)
 
 
