@@ -155,10 +155,29 @@ def get_location(seed, maps):
                 break
     return seed
 
+def get_seed(location, maps):
+    for map_ranges in maps[::-1]:
+        for map_range in map_ranges:
+            source = map_range[1]
+            dest   = map_range[0]
+            length = map_range[2]
+            if dest <= location < dest + length:
+                location = location + source - dest
+                break
+    return location
+
 def solve2(lines: Lines) -> int:
     """Solve the problem."""
-    seeds, maps = parse_lines(lines)
-    return 0
+    seed_ranges, maps = parse_lines(lines)
+    seed_ranges = list(zip(seed_ranges[::2], seed_ranges[1::2]))
+
+    locations = sorted(maps[-1])
+    for i in range(2000000000000):
+        seed = get_seed(i, maps)
+        for seed_range in seed_ranges:
+            if seed_range[0] <= seed < seed_range[0] + seed_range[1]:
+                return i
+    return -1
 
 def solve(lines: Lines) -> int:
     """Solve the problem."""
