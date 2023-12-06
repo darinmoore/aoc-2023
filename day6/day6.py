@@ -93,16 +93,21 @@ def possible_combos(time, distance):
             return combos
     return combos
 
+def optimized_possible_combos(time, distance):
+    high = (time + (time**2 - 4*distance)**(1/2)) / 2.0
+    low  = (time - (time**2 - 4*distance)**(1/2)) / 2.0
+    return math.ceil(high) - math.floor(low) - 1
+
 def solve2(lines: Lines) -> int:
     """Solve the problem."""
     time, distance = parse_lines2(lines)
-    combos = possible_combos(time, distance)
+    combos = optimized_possible_combos(time, distance)
     return combos
 
 def solve(lines: Lines) -> int:
     """Solve the problem."""
     times, distances = parse_lines(lines)
-    combos = [possible_combos(time, distance) for time, distance in zip(times, distances)]
+    combos = [optimized_possible_combos(time, distance) for time, distance in zip(times, distances)]
     return math.prod(combos)
 
 
