@@ -102,6 +102,7 @@ def get_hand_type(hand):
 
 def get_hand_type_wilds(hand):
     card_freq = {}
+    # all jokers, just return that we have 5 of a kind 
     if hand == '*****':
         return 6
     for card in hand:
@@ -125,7 +126,6 @@ def solve2(lines: Lines) -> int:
     for i in range(len(sorted_hands)):
         score += sorted_hands[i][1] * (i+1)
     return score
-    return 0
 
 def solve(lines: Lines) -> int:
     """Solve the problem."""
