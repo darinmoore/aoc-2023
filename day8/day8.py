@@ -128,10 +128,15 @@ def solve2(lines: Lines) -> int:
                 break
 
             i += 1
+
+    acc = 1
+    [acc := math.lcm(acc, x) for x in steps_to_end]
+    """
     lcm = 1
     for i in steps_to_end:
             lcm = lcm*i // math.gcd(lcm, i)
-    return lcm
+    """
+    return acc
 
 
 def solve(lines: Lines) -> int:
