@@ -168,6 +168,7 @@ def solve2(lines: Lines) -> int:
         for j in range(len(grid[0])):
             thresholds = 0
             
+            # TODO Never use x,y vals for 2d matrices in the future
             x = i
             y = j
             
