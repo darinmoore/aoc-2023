@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+#
+#  Advent of Code 2023 - Day 14
+#
+from typing import Sequence, Union, Optional, Any, Dict, List, Tuple
+from pathlib import Path
+from collections import defaultdict
+from dataclasses import dataclass
+from functools import cache
+
+import math
+import re
+
+INPUTFILE = "input.txt"
+
+SAMPLE_CASES = [
+    (
+        """
+        O....#....
+        O.OO#....#
+        .....##...
+        OO.#O....O
+        .O.....O#.
+        O.#..O.#.#
+        ..O..#O..O
+        .......O..
+        #....###..
+        #OO..#....
+        """,
+        136
+    ),
+]
+
+SAMPLE_CASES2 = [
+    (
+        """
+        O....#....
+        O.OO#....#
+        .....##...
+        OO.#O....O
+        .O.....O#.
+        O.#..O.#.#
+        ..O..#O..O
+        .......O..
+        #....###..
+        #OO..#....
+        """,
+        64
+    ),
+]
+
+Lines = Sequence[str]
+Sections = Sequence[Lines]
+
+# Utility functions
+
+def load_input(infile: str, strip=True, blank_lines=False) -> Lines:
+    return load_text(Path(infile).read_text())
+
+def load_text(text: str, strip=True, blank_lines=False) -> Lines:
+    if strip:
+        lines = [line.strip() for line in text.strip("\n").split("\n")]
+    else:
+        lines = [line for line in text.strip("\n").split("\n")]
+    if blank_lines:
+        return lines
+    return [line for line in lines if line.strip()]
+
+def parse_sections(lines: Lines) -> Sections:
+    result = []
+    sect = []
+    for line in lines:
+        if not line.strip():
+            if sect:
+                result.append(sect)
+            sect = []
+        else:
+            sect.append(line)
+    if sect:
+        result.append(sect)
+    return result
+
+
+# Solution
+def tilt_up(boulder_map):
+    boulder_map = ["#" * len(boulder_map[0])] + boulder_map
+    boulder_map = [list(row) for row in boulder_map]
+    for i in range(len(boulder_map)):
+        for j in range(len(boulder_map[i])):
+            char        = boulder_map[i][j]
+            above_index = i - 1 
+            if char == 'O':
+                boulder_map[i][j] = '.'
+                while boulder_map[above_index][j] not in "#O":
+                    above_index -= 1
+                boulder_map[above_index + 1][j] = 'O'
+ 
+    return boulder_map[1:]
+
+def rotate(boulder_map):
+    return list(zip(*boulder_map[::-1]))
+
+def do_cycle(boulder_map):
+    # NWSE
+    for _ in range(4):
+        boulder_map = tilt_up(boulder_map)
+        boulder_map = rotate(boulder_map)
+    return boulder_map
+
+
+def calculate_load(boulder_map):
+    load = 0
+    for i in range(len(boulder_map)):
+        num_boulders = sum([1 for b in boulder_map[i] if b == 'O'])
+        load += num_boulders * (len(boulder_map) - i)
+    return load
+
+
+def solve2(lines: Lines) -> int:
+    """Solve the problem."""
+    boulder_map = lines
+    cache = {}
+
+    cycle_length = None
+    cycle_start  = None
+
+    for i in range(1000000000):
+        boulder_map = do_cycle(boulder_map)       
+        
+        if str(boulder_map) in cache:
+            cycle_start  = cache[str(boulder_map)]
+            cycle_length = i - cycle_start
+            break
+        
+        cache[str(boulder_map)] = i
+
+    iters_left = (1000000000 - cycle_start - 1) % cycle_length
+    for i in range(iters_left):
+        # NWSE
+        for _ in range(4):
+            boulder_map = tilt_up(boulder_map)
+            boulder_map = rotate(boulder_map)
+
+    return calculate_load(boulder_map)
+
+def solve(lines: Lines) -> int:
+    """Solve the problem."""
+    shifted_map = tilt_up(lines)
+    return calculate_load(shifted_map)
+
+
+# PART 1
+
+def example1() -> None:
+    """Run example for problem with input arguments."""
+    print("EXAMPLE 1:")
+    for text, expected in SAMPLE_CASES:
+        lines = load_text(text)
+        result = solve(lines)
+        print(f"'{text}' -> {result} (expected {expected})")
+        assert result == expected
+    print("= " * 32)
+
+def part1(lines: Lines) -> None:
+    print("PART 1:")
+    result = solve(lines)
+    print(f"result is {result}")
+    print("= " * 32)
+
+
+# PART 2
+
+def example2() -> None:
+    """Run example for problem with input arguments."""
+    print("EXAMPLE 2:")
+    for text, expected in SAMPLE_CASES2:
+        lines = load_text(text)
+        result = solve2(lines)
+        print(f"'{text}' -> {result} (expected {expected})")
+        assert result == expected
+    print("= " * 32)
+
+def part2(lines: Lines) -> None:
+    print("PART 2:")
+    result = solve2(lines)
+    print(f"result is {result}")
+    print("= " * 32)
+
+
+if __name__ == "__main__":
+    example1()
+    input_lines = load_input(INPUTFILE)
+    part1(input_lines)
+    example2()
+    part2(input_lines)
